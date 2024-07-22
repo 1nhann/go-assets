@@ -1,4 +1,4 @@
-module assets
+module github.com/1nhann/go-assets
 
 go 1.22
 
