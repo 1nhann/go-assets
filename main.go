@@ -1,6 +1,6 @@
 package main
 
-import "assets/assets"
+import "github.com/1nhann/go-assets/assets"
 
 func main() {
 	// 连接到 Neo4j 数据库
