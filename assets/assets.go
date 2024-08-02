@@ -377,6 +377,40 @@ func (am *AssetManager) AddRelation(node1 interface{}, node2 interface{}) error 
 			return fmt.Errorf("failed to create relationships: %v", err)
 		}
 	}
+
+	if type1 == reflect.TypeOf(Domain{}) && type2 == reflect.TypeOf(Port{}) {
+		if node1.(Domain).Domain != node2.(Port).IP {
+			return errors.New("invalid IP")
+		}
+		createRelationshipsQuery := `
+        MATCH (port:Port {ip: $ip, port: $port}), (ip:IP {ip: $ip})
+        MERGE (ip)-[:HAS_PORT]->(port)
+        RETURN ip, port`
+		_, err := session.Run(createRelationshipsQuery, map[string]interface{}{
+			"ip":   node1.(Domain).Domain,
+			"port": node2.(Port).Port,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create relationships: %v", err)
+		}
+	}
+	if type2 == reflect.TypeOf(Domain{}) && type1 == reflect.TypeOf(Port{}) {
+		if node1.(Domain).Domain != node2.(Port).IP {
+			return errors.New("invalid IP")
+		}
+		createRelationshipsQuery := `
+        MATCH (port:Port {ip: $ip, port: $port}), (ip:IP {ip: $ip})
+        MERGE (ip)-[:HAS_PORT]->(port)
+        RETURN ip, port`
+		_, err := session.Run(createRelationshipsQuery, map[string]interface{}{
+			"ip":   node2.(Domain).Domain,
+			"port": node1.(Port).Port,
+		})
+		if err != nil {
+			return fmt.Errorf("failed to create relationships: %v", err)
+		}
+	}
+
 	if type1 == reflect.TypeOf(Port{}) && type2 == reflect.TypeOf(Fingerprint{}) {
 		createRelationshipsQuery := `
         MATCH (port:Port {ip: $ip, port: $port}), (finger:Fingerprint {name: $finger})
