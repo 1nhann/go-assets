@@ -52,8 +52,10 @@ type IP struct {
 }
 
 type Port struct {
-	Port int
-	IP   string
+	Port     int
+	IP       string
+	Protocol string
+	Title    string
 }
 
 type Domain struct {
@@ -203,11 +205,13 @@ func (am *AssetManager) AddPort(port Port) error {
 	session := am.SessionPool.GetSession()
 	defer am.SessionPool.ReleaseSession(session)
 	createPortQuery := `
-        MERGE (p:Port {port: $port, ip: $ip})
+        MERGE (p:Port {port: $port, ip: $ip, protocol: $protocol, title: $title})
         RETURN p`
 	_, err := session.Run(createPortQuery, map[string]interface{}{
-		"port": port.Port,
-		"ip":   port.IP,
+		"port":     port.Port,
+		"ip":       port.IP,
+		"protocol": port.Protocol,
+		"title":    port.Title,
 	})
 	if err != nil {
 		return fmt.Errorf("failed to create port node: %v", err)
